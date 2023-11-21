@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Use a CDN link for the browser-friendly version of date-fns -->
+    <script type="module" src="https://cdn.skypack.dev/date-fns">
+    import { format, addMinutes } from 'https://cdn.skypack.dev/date-fns';
+
+    </script>
+    
+
+    <title>Web Conferencing App</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #schedule-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            z-index: 1;
+        }
+
+        .modal-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <a class="back-link" href="both-recents-and-space.html">Back to recent and space</a></p>
+
+    <!-- Button to open the scheduling modal -->
+    <button onclick="openScheduleModal()">Schedule Meeting</button>
+
+    <!-- Scheduling Modal -->
+    <div id="schedule-modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeScheduleModal()">&times;</span>
+            <h2>Schedule a Meeting</h2>
+            <form id="schedule-form">
+                <label for="meeting-title">Title:</label>
+                <input type="text" id="meeting-title" name="meeting-title" required>
+
+                <label for="meeting-time">Start Time:</label>
+                <input type="time" id="meeting-time" name="meeting-time" required>
+
+                <label for="meeting-end-time">End Time:</label>
+                <input type="time" id="meeting-end-time" name="meeting-end-time" required>
+
+                <button type="button" id="schedule-btn" onclick="scheduleMeeting()">Schedule</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openScheduleModal() {
+            document.getElementById('schedule-modal').style.display = 'flex';
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('schedule-modal').style.display = 'none';
+        }
+
+        async function scheduleMeeting() {
+            const title = document.getElementById('meeting-title').value;
+            const startTime = document.getElementById('meeting-time').value;
+            const endTime = document.getElementById('meeting-end-time').value;
+
+
+            if (startTime >= endTime) {
+            showError("Start time must be before end time");
+            return;
+           }
+
+            
+
+            // Use the current date and concatenate with the selected time
+            const startDateString = '2023-11-30';
+            const startDate = new Date(`${startDateString}T${startTime}:00.000Z`);
+            const endDate = new Date(`${startDateString}T${endTime}:00.000Z`);
+
+            const meetingDetails = {
+                title,
+                start: startDate.toISOString(),
+                end: endDate.toISOString()
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/schedule-meeting', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(meetingDetails)
+                });
+
+                if (response.ok) {
+                    console.log('Meeting scheduled successfully!');
+                    closeScheduleModal(); // Make sure this function is defined and does what you want
+                } else {
+                    console.error('Failed to schedule meeting:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error:', error.message);
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>
